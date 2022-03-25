@@ -459,10 +459,11 @@ public class CmapSubtable implements CmapLookup
     {
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(maxGlyphId + 1);
 
-        IntIntMap.KeyIterator keyIterator = characterCodeToGlyphId.keyIterator();
-        while (keyIterator.hasNext()) {
-            int key = keyIterator.next();
-            int value = characterCodeToGlyphId.get(key);
+        IntIntMap.EntryIterator entryIterator = characterCodeToGlyphId.entryIterator();
+        while (entryIterator.hasNext()) {
+            entryIterator.next();
+            int key = entryIterator.getKey();
+            int value = entryIterator.getValue();
 
             if (glyphIdToCharacterCode[value] == -1)
             {
