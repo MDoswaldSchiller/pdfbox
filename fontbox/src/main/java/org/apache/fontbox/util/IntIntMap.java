@@ -44,7 +44,8 @@ public final class IntIntMap
    */
   public void put(int key, int value)
   {
-    int index = Arrays.binarySearch(keys, 0, size, key);
+    //keys of put calls are usually sequential. Handle this case with shortcut.
+    int index = (size == 0 || keys[size-1] < key) ? -(size+1) : Arrays.binarySearch(keys, 0, size, key);
 
     //new key, insert
     if (index < 0) {
@@ -57,10 +58,11 @@ public final class IntIntMap
         System.arraycopy(values, index, values, index + 1, (size - index));
       }
 
+      //only need to set the key if the index didn't exist before
+      keys[index] = key;
       size++;
     }
 
-    keys[index] = key;
     values[index] = value;
   }
 
