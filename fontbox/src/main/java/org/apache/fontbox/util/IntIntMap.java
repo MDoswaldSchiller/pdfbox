@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 public final class IntIntMap
 {
   public static final int NO_VALUE = Integer.MIN_VALUE;
-  
+
   private int keys[];
   private int values[];
   private int size;
@@ -80,7 +80,7 @@ public final class IntIntMap
       keys = Arrays.copyOf(keys, newSize);
       values = Arrays.copyOf(values, newSize);
     }
-  }  
+  }
 
   /**
    * Returns the value associated to the given key. If the key is not in the map
@@ -116,28 +116,28 @@ public final class IntIntMap
   }
 
   /**
-   * Create an iterator object to iterate over all keys in this map. The
+   * Create an iterator object to iterate over all entries in this map. The
    * returned iterator will interact directly with the data in this object. It
    * is therefore not allowed to change the map while the returned iterator is
    * in use. Doing so will cause the iterator to throw
    * {@code ConcurrentModificationException}s.
    *
-   * Note: The iterator will iterate over the keys in an ordered fashion from
+   * Note: The iterator will iterate over the entries in an ordered fashion from
    * smallest to biggest key.
    *
-   * @return An iterator to iterate over the keys in the map.
+   * @return An iterator to iterate over the entries in the map.
    */
-  public KeyIterator keyIterator()
+  public EntryIterator entryIterator()
   {
-    return new KeyIterator(changeCounter);
+    return new EntryIterator(changeCounter);
   }
 
   /**
-   * Base class for the key and value iterator. Stores the current change
+   * Iterator to iterate over all entries in this map. Stores the current change
    * counter of the IntMap and provides a method to check if the counter
    * changed. Also implements the hasNext() method.
    */
-  public final class KeyIterator
+  public final class EntryIterator
   {
     /**
      * A copy of the change counter at the time of the iterator creation. If the
@@ -151,10 +151,10 @@ public final class IntIntMap
      */
     private int currentIdx;
 
-    KeyIterator(int changeCounter)
+    EntryIterator(int changeCounter)
     {
       this.changeCheckpoint = changeCounter;
-      this.currentIdx = 0;
+      this.currentIdx = -1;
     }
 
     /**
@@ -165,18 +165,34 @@ public final class IntIntMap
     public boolean hasNext()
     {
       checkIfModified();
-      return currentIdx < size;
+      return (currentIdx+1) < size;
     }
 
     /**
-     * @return the next element
+     * Proceed to the next entry. Use the getKey and getValue methods to get
+     * the current values.
+     *
+     * @exception ConcurrentModificationException If the underlying map was changed
+     *                                            since the iterator was created
+     * @exception NoSuchElementException If the iterator was pointing to the last element
      */
-    public int next()
+    public void next()
     {
       checkIfModified();
+      currentIdx++;
       checkIfIndexIsValid();
+    }
 
-      return keys[currentIdx++];
+    public int getKey()
+    {
+      checkIfModified();
+      return keys[currentIdx];
+    }
+
+    public int getValue()
+    {
+      checkIfModified();
+      return values[currentIdx];
     }
 
     void checkIfModified()

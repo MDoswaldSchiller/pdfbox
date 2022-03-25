@@ -4,7 +4,9 @@
  */
 package org.apache.fontbox.util;
 
+import java.util.NoSuchElementException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -13,6 +15,17 @@ import org.junit.Test;
  */
 public class IntIntMapTest
 {
+  private IntIntMap defaultMap;
+
+  @Before
+  public void setUp()
+  {
+    defaultMap = new IntIntMap(3);
+    defaultMap.put(5, 8);
+    defaultMap.put(7, 11);
+    defaultMap.put(3, 17);
+  }
+
   @Test
   public void testSize()
   {
@@ -48,5 +61,47 @@ public class IntIntMapTest
 
     putMap.put(6, 999);
     Assert.assertEquals("Get of value for key '6'", 999, putMap.get(6));
+  }
+
+  @Test
+  public void entryIterator_returns_all_elements_in_order()
+  {
+    IntIntMap.EntryIterator iterator = defaultMap.entryIterator();
+
+    iterator.next();
+    Assert.assertEquals(3, iterator.getKey());
+    Assert.assertEquals(17, iterator.getValue());
+    iterator.next();
+    Assert.assertEquals(5, iterator.getKey());
+    Assert.assertEquals(8, iterator.getValue());
+    iterator.next();
+    Assert.assertEquals(7, iterator.getKey());
+    Assert.assertEquals(11, iterator.getValue());
+  }
+
+  @Test
+  public void entryIterator_hasNext_only_returns_false_on_last_entry()
+  {
+    IntIntMap.EntryIterator iterator = defaultMap.entryIterator();
+
+    Assert.assertTrue(iterator.hasNext());
+    iterator.next();
+    Assert.assertTrue(iterator.hasNext());
+    iterator.next();
+    Assert.assertTrue(iterator.hasNext());
+    iterator.next();
+    Assert.assertFalse(iterator.hasNext());
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void entryIterator_throws_if_next_is_called_on_last_entry()
+  {
+    IntIntMap.EntryIterator iterator = defaultMap.entryIterator();
+    iterator.next();
+    iterator.next();
+    iterator.next();
+
+    //throw
+    iterator.next();
   }
 }
