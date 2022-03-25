@@ -22,11 +22,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.fontbox.util.IntIntMap;
 
 /**
  * A "cmap" subtable.
@@ -44,8 +44,8 @@ public class CmapSubtable implements CmapLookup
     private int platformEncodingId;
     private long subTableOffset;
     private int[] glyphIdToCharacterCode;
-    private final Map<Integer, List<Integer>> glyphIdToCharacterCodeMultiple = new HashMap<Integer, List<Integer>>();
-    private Map<Integer, Integer> characterCodeToGlyphId= new HashMap<Integer, Integer>();
+    private final Map<Integer,List<Integer>> glyphIdToCharacterCodeMultiple = new HashMap<Integer,List<Integer>>();
+    private IntIntMap characterCodeToGlyphId= new IntIntMap(0);
 
     /**
      * This will read the required data from the stream.
@@ -141,7 +141,7 @@ public class CmapSubtable implements CmapLookup
         }
 
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(numGlyphs);
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         if (numGlyphs == 0)
         {
             LOG.warn("subtable has no glyphs");
@@ -241,7 +241,7 @@ public class CmapSubtable implements CmapLookup
         int maxGlyphId = 0;
         long nbGroups = data.readUnsignedInt();
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(numGlyphs);
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         if (numGlyphs == 0)
         {
             LOG.warn("subtable has no glyphs");
@@ -298,7 +298,7 @@ public class CmapSubtable implements CmapLookup
     {
         long nbGroups = data.readUnsignedInt();
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(numGlyphs);
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         if (numGlyphs == 0)
         {
             LOG.warn("subtable has no glyphs");
@@ -375,7 +375,7 @@ public class CmapSubtable implements CmapLookup
         {
             return;
         }
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         int[] glyphIdArray = data.readUnsignedShortArray(entryCount);
         int maxGlyphId = 0;
         for (int i = 0; i < entryCount; i++)
@@ -407,7 +407,7 @@ public class CmapSubtable implements CmapLookup
         long idRangeOffsetPosition = data.getCurrentPosition();
         int[] idRangeOffset = data.readUnsignedShortArray(segCount);
 
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         int maxGlyphId = 0;
 
         for (int i = 0; i < segCount; i++)
@@ -458,26 +458,30 @@ public class CmapSubtable implements CmapLookup
     private void buildGlyphIdToCharacterCodeLookup(int maxGlyphId)
     {
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(maxGlyphId + 1);
-        for (Entry<Integer, Integer> entry : characterCodeToGlyphId.entrySet())
-        {
-            if (glyphIdToCharacterCode[entry.getValue()] == -1)
+
+        IntIntMap.KeyIterator keyIterator = characterCodeToGlyphId.keyIterator();
+        while (keyIterator.hasNext()) {
+            int key = keyIterator.next();
+            int value = characterCodeToGlyphId.get(key);
+
+            if (glyphIdToCharacterCode[value] == -1)
             {
                 // add new value to the array
-                glyphIdToCharacterCode[entry.getValue()] = entry.getKey();
+                glyphIdToCharacterCode[value] = key;
             }
             else
             {
                 // there is already a mapping for the given glyphId
-                List<Integer> mappedValues = glyphIdToCharacterCodeMultiple.get(entry.getValue());
+                List<Integer> mappedValues = glyphIdToCharacterCodeMultiple.get(value);
                 if (mappedValues == null)
                 {
-                    mappedValues = new ArrayList<Integer>();
-                    glyphIdToCharacterCodeMultiple.put(entry.getValue(), mappedValues);
-                    mappedValues.add(glyphIdToCharacterCode[entry.getValue()]);
+                    mappedValues = new ArrayList<Integer>(2);
+                    glyphIdToCharacterCodeMultiple.put(value, mappedValues);
+                    mappedValues.add(glyphIdToCharacterCode[value]);
                     // mark value as multiple mapping
-                    glyphIdToCharacterCode[entry.getValue()] = Integer.MIN_VALUE;
+                    glyphIdToCharacterCode[value] = Integer.MIN_VALUE;
                 }
-                mappedValues.add(entry.getKey());
+                mappedValues.add(key);
             }
         }
     }
@@ -512,7 +516,7 @@ public class CmapSubtable implements CmapLookup
         }
         long startGlyphIndexOffset = data.getCurrentPosition();
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(numGlyphs);
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(numGlyphs);
+        characterCodeToGlyphId = new IntIntMap(numGlyphs);
         if (numGlyphs == 0)
         {
             LOG.warn("subtable has no glyphs");
@@ -569,7 +573,7 @@ public class CmapSubtable implements CmapLookup
     {
         byte[] glyphMapping = data.read(256);
         glyphIdToCharacterCode = newGlyphIdToCharacterCode(256);
-        characterCodeToGlyphId = new HashMap<Integer, Integer>(glyphMapping.length);
+        characterCodeToGlyphId = new IntIntMap(glyphMapping.length);
         for (int i = 0; i < glyphMapping.length; i++)
         {
             int glyphIndex = glyphMapping[i] & 0xFF;
@@ -630,8 +634,8 @@ public class CmapSubtable implements CmapLookup
     @Override
     public int getGlyphId(int characterCode)
     {
-        Integer glyphId = characterCodeToGlyphId.get(characterCode);
-        return glyphId == null ? 0 : glyphId;
+        int glyphId = characterCodeToGlyphId.get(characterCode);
+        return glyphId == IntIntMap.NO_VALUE ? 0 : glyphId;
     }
 
     /**
