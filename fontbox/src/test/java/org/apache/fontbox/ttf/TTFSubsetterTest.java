@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import org.apache.fontbox.util.IntIntMap;
 import org.apache.fontbox.util.autodetect.FontFileFinder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -174,10 +175,11 @@ public class TTFSubsetterTest
         TrueTypeFont subset = new TTFParser(true).parse(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals(6, subset.getNumberOfGlyphs());
 
-        for (Entry<Integer, Integer> entry : ttfSubsetter.getGIDMap().entrySet())
-        {
-            Integer newGID = entry.getKey();
-            Integer oldGID = entry.getValue();
+        IntIntMap.EntryIterator entryIterator = ttfSubsetter.getGIDMap().entryIterator();
+        while (entryIterator.hasNext()) {
+            entryIterator.next();
+            Integer newGID = entryIterator.getKey();
+            Integer oldGID = entryIterator.getValue();
             assertEquals(full.getAdvanceWidth(oldGID), subset.getAdvanceWidth(newGID));
             assertEquals(full.getHorizontalMetrics().getLeftSideBearing(oldGID), 
                        subset.getHorizontalMetrics().getLeftSideBearing(newGID));

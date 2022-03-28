@@ -38,6 +38,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.fontbox.util.IntIntMap;
 
 /**
  * Subsetter for TrueType (TTF) fonts.
@@ -132,11 +133,11 @@ public final class TTFSubsetter
     /**
      * Returns the map of new -&gt; old GIDs.
      */
-    public Map<Integer, Integer> getGIDMap() throws IOException
+    public IntIntMap getGIDMap() throws IOException
     {
         addCompoundReferences();
 
-        Map<Integer, Integer> newToOld = new HashMap<Integer, Integer>();
+        IntIntMap newToOld = new IntIntMap(glyphIds.size());
         int newGID = 0;
         for (int oldGID : glyphIds)
         {

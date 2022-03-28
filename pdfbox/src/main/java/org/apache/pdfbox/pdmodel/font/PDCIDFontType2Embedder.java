@@ -36,6 +36,7 @@ import org.apache.fontbox.ttf.HorizontalMetricsTable;
 import org.apache.fontbox.ttf.TrueTypeFont;
 import org.apache.fontbox.ttf.VerticalHeaderTable;
 import org.apache.fontbox.ttf.VerticalMetricsTable;
+import org.apache.fontbox.util.IntIntMap;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSInteger;
@@ -101,15 +102,16 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
      * Rebuild a font subset.
      */
     @Override
-    protected void buildSubset(InputStream ttfSubset, String tag, Map<Integer, Integer> gidToCid)
+    protected void buildSubset(InputStream ttfSubset, String tag, IntIntMap gidToCid)
             throws IOException
     {
         // build CID2GIDMap, because the content stream has been written with the old GIDs
-        Map<Integer, Integer> cidToGid = new HashMap<Integer, Integer>(gidToCid.size());
-        for (Map.Entry<Integer, Integer> entry : gidToCid.entrySet())
-        {
-            int newGID = entry.getKey();
-            int oldGID = entry.getValue();
+        IntIntMap cidToGid = new IntIntMap(gidToCid.size());
+        IntIntMap.EntryIterator entryIterator = gidToCid.entryIterator();
+        while (entryIterator.hasNext()) {
+            entryIterator.next();
+            int newGID = entryIterator.getKey();
+            int oldGID = entryIterator.getValue();
             cidToGid.put(oldGID, newGID);
         }
         // build unicode mapping before subsetting as the subsetted font won't have a cmap
@@ -127,7 +129,7 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
         buildCIDSet(cidToGid);
     }
 
-    private void buildToUnicodeCMap(Map<Integer, Integer> newGIDToOldCID) throws IOException
+    private void buildToUnicodeCMap(IntIntMap newGIDToOldCID) throws IOException
     {
         ToUnicodeWriter toUniWriter = new ToUnicodeWriter();
         boolean hasSurrogates = false;
@@ -236,10 +238,10 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
         cidFont.setName(COSName.BASE_FONT, newName);
     }
 
-    private void buildCIDToGIDMap(Map<Integer, Integer> cidToGid) throws IOException
+    private void buildCIDToGIDMap(IntIntMap cidToGid) throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int cidMax = Collections.max(cidToGid.keySet());
+        int cidMax = cidToGid.lastKey();
         for (int i = 0; i <= cidMax; i++)
         {
             int gid;
@@ -264,9 +266,13 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
      * Builds the CIDSet entry, required by PDF/A. This lists all CIDs in the font, including those
      * that don't have a GID.
      */
-    private void buildCIDSet(Map<Integer, Integer> cidToGid) throws IOException
+    private void buildCIDSet(IntIntMap cidToGid) throws IOException
     {
-        int cidMax = Collections.max(cidToGid.keySet());
+        int cidMax = cidToGid.lastKey();
+        if (cidMax < 0) {
+          return;
+        }
+        
         byte[] bytes = new byte[cidMax / 8 + 1];
         for (int cid = 0; cid <= cidMax; cid++)
         {
@@ -283,18 +289,21 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
     /**
      * Builds widths with a custom CIDToGIDMap (for embedding font subset).
      */
-    private void buildWidths(Map<Integer, Integer> cidToGid) throws IOException
+    private void buildWidths(IntIntMap cidToGid) throws IOException
     {
         float scaling = 1000f / ttf.getHeader().getUnitsPerEm();
 
         COSArray widths = new COSArray();
         COSArray ws = new COSArray();
         int prev = Integer.MIN_VALUE;
-        // Use a sorted list to get an optimal width array  
-        Set<Integer> keys = new TreeSet<Integer>(cidToGid.keySet());
-        for (int cid : keys)
+        // Use a sorted list to get an optimal width array
+        IntIntMap.EntryIterator entries = cidToGid.entryIterator();
+        
+        while (entries.hasNext())
         {
-            int gid = cidToGid.get(cid);
+            entries.next();
+            int cid = entries.getKey();
+            int gid = entries.getValue();
             long width = Math.round(ttf.getHorizontalMetrics().getAdvanceWidth(gid) * scaling);
             if (width == 1000)
             {
@@ -340,7 +349,7 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
     /**
      * Builds vertical metrics with a custom CIDToGIDMap (for embedding font subset).
      */
-    private void buildVerticalMetrics(Map<Integer, Integer> cidToGid) throws IOException
+    private void buildVerticalMetrics(IntIntMap cidToGid) throws IOException
     {
         // The "vhea" and "vmtx" tables that specify vertical metrics shall never be used by a conforming
         // reader. The only way to specify vertical metrics in PDF shall be by means of the DW2 and W2
@@ -364,10 +373,13 @@ final class PDCIDFontType2Embedder extends TrueTypeEmbedder
         COSArray heights = new COSArray();
         COSArray w2 = new COSArray();
         int prev = Integer.MIN_VALUE;
+        
         // Use a sorted list to get an optimal width array
-        Set<Integer> keys = new TreeSet<Integer>(cidToGid.keySet());
-        for (int cid : keys)
+        IntIntMap.EntryIterator entries = cidToGid.entryIterator();
+        while (entries.hasNext())
         {
+            entries.next();
+            int cid = entries.getKey();
             // Unlike buildWidths, we look up with cid (not gid) here because this is
             // the original TTF, not the rebuilt one.
             GlyphData glyph = glyf.getGlyph(cid);

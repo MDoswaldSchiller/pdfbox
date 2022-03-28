@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 import org.apache.fontbox.ttf.OS2WindowsMetricsTable;
 import org.apache.fontbox.ttf.TTFParser;
 import org.apache.fontbox.ttf.TrueTypeFont;
+import org.apache.fontbox.util.IntIntMap;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
@@ -326,7 +327,7 @@ public class TestFontEmbedding extends TestCase
         }
 
         @Override
-        protected void buildSubset(InputStream ttfSubset, String tag, Map<Integer, Integer> gidToCid)
+        protected void buildSubset(InputStream ttfSubset, String tag, IntIntMap gidToCid)
                 throws IOException
         {
             // no-op.  Need to define method to extend abstract class, but
