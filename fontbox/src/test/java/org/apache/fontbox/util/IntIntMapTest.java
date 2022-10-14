@@ -104,4 +104,24 @@ public class IntIntMapTest
     //throw
     iterator.next();
   }
+  
+  
+  @Test
+  public void empty_map_does_not_contain_any_key()
+  {
+    IntIntMap containsMap = new IntIntMap(8);
+    Assert.assertFalse("Key '5' must not exist", containsMap.containsKey(5));
+  }
+  
+  @Test
+  public void contains_returns_true_if_key_is_in_map()
+  {
+    Assert.assertTrue("Key '5' must exist", defaultMap.containsKey(5));
+  }
+  
+  @Test
+  public void contains_returns_false_if_key_is_not_in_map()
+  {
+    Assert.assertFalse("Key '4' must not exist", defaultMap.containsKey(4));
+  }
 }
