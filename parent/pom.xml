@@ -26,7 +26,7 @@
 
     <!-- don't increase number without investigation of the diffs
     https://maven.apache.org/pom/asf/ due to failure to build on jdk6 -->
-    <version>19</version>
+    <version>27</version>
 
     <relativePath />
   </parent>
@@ -53,7 +53,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <bouncycastle.version>1.70</bouncycastle.version>
+    <bouncycastle.version>1.72</bouncycastle.version>
         
     <!-- PDFBOX-4479 to build on jdk6 on newer Jenkins -->
     <jdk.path>${env.JAVA_HOME}</jdk.path>
@@ -80,17 +80,17 @@
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
+        <artifactId>bcprov-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcmail-jdk15on</artifactId>
+        <artifactId>bcmail-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
+        <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
 
@@ -120,15 +120,20 @@
       <!-- from jdk11 onwards activation and bind are no longer part of the jdk -->
       <!-- must be set to "test" or "provided" in subprojects --> 
       <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>4.0.0</version>
       </dependency>
       <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.1.1</version>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>4.0.1</version>
       </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>4.0.1</version>
+      </dependency>      
     </dependencies>
   </dependencyManagement>
 
@@ -203,7 +208,7 @@
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <source>1.6</source>
+          <source>11</source>
           <links>
             <link>https://docs.oracle.com/javase/6/docs/api/</link>
           </links>
@@ -248,8 +253,7 @@
       <plugin>
         <groupId>com.googlecode.maven-download-plugin</groupId>
         <artifactId>download-maven-plugin</artifactId>
-        <!-- PDFBOX-4980: don't update, or it won't work with jdk6 -->
-        <version>1.5.1</version>
+        <version>1.6.8</version>
         <configuration>
           <skip>${skipTests}</skip>
         </configuration>
@@ -295,13 +299,11 @@
         <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <!-- don't upgrade to 4.0.x as long as we have to ensure jdk7 compatibility -->
-          <version>3.5.1</version>
+          <version>5.1.8</version>
         </plugin>
         <plugin>
-          <!-- default version 2.20.1 doesn't work with jdk11 -->
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.2</version>
+          <version>3.0.0-M7</version>
         </plugin>
       </plugins>
     </pluginManagement>

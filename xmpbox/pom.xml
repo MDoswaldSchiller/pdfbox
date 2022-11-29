@@ -38,8 +38,8 @@ language governing permissions and limitations under the License. -->
       </activation>
       <dependencies>
         <dependency>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
           <scope>provided</scope>
         </dependency>
       </dependencies>
