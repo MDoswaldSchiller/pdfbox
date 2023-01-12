@@ -21,6 +21,8 @@
 
 package org.apache.pdfbox.preflight.parser;
 
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -30,8 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
@@ -59,7 +59,6 @@ import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.ValidationResult.ValidationError;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
-
 
 import static org.apache.pdfbox.preflight.PreflightConstants.ERROR_SYNTAX_ARRAY_TOO_LONG;
 import static org.apache.pdfbox.preflight.PreflightConstants.ERROR_SYNTAX_CROSS_REF;

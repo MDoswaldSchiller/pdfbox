@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.pdfparser.XrefTrailerResolver;

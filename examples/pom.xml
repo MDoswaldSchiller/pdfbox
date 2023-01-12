@@ -49,13 +49,8 @@
           </activation>
           <dependencies>
               <dependency>
-                  <groupId>javax.xml.bind</groupId>
-                  <artifactId>jaxb-api</artifactId>
-                  <scope>provided</scope>
-              </dependency>
-              <dependency>
-                  <groupId>javax.activation</groupId>
-                  <artifactId>activation</artifactId>
+                  <groupId>jakarta.xml.bind</groupId>
+                  <artifactId>jakarta.xml.bind-api</artifactId>
                   <scope>provided</scope>
               </dependency>
           </dependencies>
@@ -65,7 +60,7 @@
   <dependencies>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk15on</artifactId>
+      <artifactId>bcmail-jdk18on</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
