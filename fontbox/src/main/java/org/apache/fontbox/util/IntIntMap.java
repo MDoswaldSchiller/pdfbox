@@ -3,6 +3,7 @@ package org.apache.fontbox.util;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  *
@@ -116,6 +117,34 @@ public final class IntIntMap
   }
 
   /**
+   * Checks if this map contains a given key
+   *
+   * @param key The key to check
+   *
+   * @return true if this map contains the key, false if not
+   */
+  public boolean containsKey(int key)
+  {
+    return (Arrays.binarySearch(keys, 0, size, key) >= 0);
+  }
+
+  /**
+   * Will return the last key in this map. Since the keys in this map are always
+   * sorted, this will return the key with the highest value. If the map is
+   * empty, the method will return Integer.MIN_VALUE.
+   *
+   * @return The value of the last key or Integer.MIN_VALUE if map is empty
+   */
+  public int lastKey()
+  {
+    if (isEmpty()) {
+      return Integer.MIN_VALUE;
+    }
+
+    return keys[size - 1];
+  }
+
+  /**
    * Create an iterator object to iterate over all entries in this map. The
    * returned iterator will interact directly with the data in this object. It
    * is therefore not allowed to change the map while the returned iterator is
@@ -132,6 +161,57 @@ public final class IntIntMap
     return new EntryIterator(changeCounter);
   }
 
+  /**
+   * Returns the hash code value for this map.  The hash code of a map is
+   * defined to be the sum of the hash codes of each entry.
+   * 
+   * @implSpec: The implementation tries to emulate the hashCode logic of the
+   * Map class
+   * 
+   * @return The hash code
+   */
+  @Override
+  public int hashCode()
+  {
+    int hash = 0;
+    
+    for (int idx = 0; idx < size; idx++) {
+      hash += keys[idx] ^ values[idx];
+    }
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final IntIntMap other = (IntIntMap) obj;
+    if (this.size != other.size) {
+      return false;
+    }
+    
+    for (int idx = 0; idx < size; idx++) {
+      if (keys[idx] != other.keys[idx]) {
+        return false;
+      }
+      if (values[idx] != other.values[idx]) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  
+  
   /**
    * Iterator to iterate over all entries in this map. Stores the current change
    * counter of the IntMap and provides a method to check if the counter
