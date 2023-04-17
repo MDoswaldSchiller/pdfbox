@@ -21,9 +21,9 @@
 
 package org.apache.pdfbox.preflight.action.pdfa1b;
 
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 import java.util.List;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -35,6 +35,7 @@ import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult.ValidationError;
 import org.apache.pdfbox.preflight.action.AbstractActionManager;
 import org.apache.pdfbox.preflight.action.ActionManagerFactory;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

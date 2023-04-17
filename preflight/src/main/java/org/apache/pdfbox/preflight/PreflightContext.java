@@ -21,15 +21,13 @@
 
 package org.apache.pdfbox.preflight;
 
+import jakarta.activation.DataSource;
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.activation.DataSource;
-
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.pdfparser.XrefTrailerResolver;
 import org.apache.pdfbox.pdmodel.common.COSObjectable;

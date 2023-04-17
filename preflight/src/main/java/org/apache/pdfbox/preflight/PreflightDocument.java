@@ -23,7 +23,6 @@ package org.apache.pdfbox.preflight;
 
 import java.io.IOException;
 import java.util.Collection;
-
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.preflight.ValidationResult.ValidationError;
@@ -158,7 +157,7 @@ public class PreflightDocument extends PDDocument
     {
         // force early class loading to check if people forgot to use --add-modules javax.xml.bind
         // on java 9 & 10, or to add jaxb-api on java 11 and later
-        javax.xml.bind.DatatypeConverter.parseInt("0");
+        jakarta.xml.bind.DatatypeConverter.parseInt("0");
         context.setConfig(config);
         Collection<String> processes = config.getProcessNames();
         for (String name : processes)

@@ -15,9 +15,9 @@
  */
 package org.apache.pdfbox.preflight;
 
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 import java.io.IOException;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 
 import org.apache.pdfbox.preflight.parser.PreflightParser;
 
